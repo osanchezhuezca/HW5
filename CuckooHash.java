@@ -1,6 +1,6 @@
 /******************************************************************
  *
- *   YOUR NAME / SECTION NUMBER
+ *    Oscar Sanchez Huezca / Section 001
  *
  *   Note, additional comments provided throughout this source code
  *   is for educational purposes
@@ -249,9 +249,45 @@ public class CuckooHash<K, V> {
 		// ADD YOUR CODE HERE - DO NOT FORGET TO ADD YOUR NAME AT TOP OF FILE.
 		// Also make sure you read this method's prologue above, it should help
 		// you. Especially the two HINTS in the prologue.
+        int pos1 = hash1(key);
+        int pos2 = hash2(key);
+        boolean exists = false;
+        if (table[pos1] != null && table[pos1].getBucKey().equals(key) && table[pos1].getValue().equals(value)) {
+            exists = true;
+        }
+        if (!exists && table[pos2] != null && table[pos2].getBucKey().equals(key) && table[pos2].getValue().equals(value)) {
+            exists = true;
+        }
+        
+        if (exists) {
+            return;
+        }
+        Bucket<K, V> newBucket = new Bucket<>(key, value);
+        int currentPos = hash1(key);
+        Bucket<K, V> currentBucket = newBucket;        
+        boolean inserted = false;
+        for (int i = 0; i < CAPACITY && !inserted; i++) {
+            if (table[currentPos] == null) {
+                table[currentPos] = currentBucket;
+                inserted = true;
+                continue;
+            } 
+            Bucket<K, V> temp = table[currentPos];
+            table[currentPos] = currentBucket;
+            currentBucket = temp;            
+            if (currentPos == hash1(currentBucket.getBucKey())) {
+                currentPos = hash2(currentBucket.getBucKey());
+            } else {
+                currentPos = hash1(currentBucket.getBucKey());
+            }
+        }
+        if (!inserted) {
+            rehash();
+            put(currentBucket.getBucKey(), currentBucket.getValue());
+        }
+    }
 
-		return;
-	}
+	
 
 
 	/**
